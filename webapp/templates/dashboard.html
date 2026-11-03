@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block body %}
+<section class="hero"><h1>Review Intelligence Dashboard</h1>
+<p>Trends, sentiment and topics across the review corpus. Spam is excluded from sentiment / topic analysis.</p></section>
+{% if not d %}
+<div class="card warn">No dashboard data yet. Run <code>python run_pipeline.py</code> first.</div>
+{% else %}
+<div class="kpis">
+  <div class="card kpi"><span>Products</span><b>{{ '{:,}'.format(d.kpi.products) }}</b></div>
+  <div class="card kpi"><span>Number of Categories</span><b>{{ '%02d'|format(d.kpi.categories) }}</b></div>
+  <div class="card kpi"><span>No of Reviews</span><b>{{ '{:,}'.format(d.kpi.reviews) }}</b></div>
+  <div class="card kpi"><span>Flagged as Spam</span><b class="red">{{ d.kpi.spam_pct }}%</b></div>
+  {% if d.kpi.avg_rating %}<div class="card kpi"><span>Avg rating (genuine)</span><b class="green">{{ d.kpi.avg_rating }} ★</b></div>{% endif %}
+</div>
+
+<div class="dgrid">
+  {% if d.has_date %}<div class="card"><h4>Review trend over time</h4><img src="{{ url_for('static', filename='dash/trend.png') }}" alt="trend"></div>{% endif %}
+  {% if d.has_rating %}
+  <div class="card"><h4>Sentiment breakdown</h4><img src="{{ url_for('static', filename='dash/sentiment.png') }}" alt="sentiment"></div>
+  <div class="card"><h4>Rating distribution</h4><img src="{{ url_for('static', filename='dash/rating_dist.png') }}" alt="rating"></div>
+  <div class="card"><h4>Top 5 positive topics</h4><img src="{{ url_for('static', filename='dash/topics_pos.png') }}" alt="pos topics"></div>
+  <div class="card"><h4>Top 5 negative topics</h4><img src="{{ url_for('static', filename='dash/topics_neg.png') }}" alt="neg topics"></div>
+  <div class="card"><h4>Selling price vs rating analysis</h4><img src="{{ url_for('static', filename='dash/price_rating.png') }}" alt="price vs rating"></div>
+  {% endif %}
+  <div class="card"><h4>Spam / fake reviews by category</h4><img src="{{ url_for('static', filename='dash/spam_category.png') }}" alt="spam by category"></div>
+  {% if d.spam_types %}<div class="card"><h4>Spam types in the corpus</h4><img src="{{ url_for('static', filename='dash/spam_types.png') }}" alt="spam types"></div>{% endif %}
+</div>
+
+{% if d.kw_pos %}
+<div class="grid2">
+  <div class="card"><h4>Common positive keywords</h4><div class="chips">{% for w in d.kw_pos %}<span class="tag green">{{ w }}</span>{% endfor %}</div></div>
+  <div class="card"><h4>Common negative keywords</h4><div class="chips">{% for w in d.kw_neg %}<span class="tag red">{{ w }}</span>{% endfor %}</div></div>
+</div>
+{% endif %}
+{% endif %}
+{% endblock %}

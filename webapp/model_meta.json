@@ -1,0 +1,27 @@
+{
+  "title": "Indian E-commerce Review Intelligence",
+  "classes": [
+    "Genuine",
+    "Spam"
+  ],
+  "sentiment_classes": [
+    "Negative",
+    "Neutral",
+    "Positive"
+  ],
+  "has_sentiment": true,
+  "hidden": [
+    4
+  ],
+  "activation": "relu",
+  "threshold": 0.5,
+  "test": {
+    "accuracy": 0.9775,
+    "precision": 0.9955,
+    "recall": 0.8956,
+    "f1": 0.9429,
+    "auc": 0.9783
+  },
+  "sentiment_test": 0.8707,
+  "data_source": "synthetic generator (n=8000, seed=42)"
+}

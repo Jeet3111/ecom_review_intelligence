@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Model &amp; Experiments{% endblock %}
+{% block body %}
+<section class="hero"><h1>Model &amp; Experiments</h1>
+<p>Everything below was produced by <code>run_pipeline.py</code>: perceptron → MLP → cost functions → back-propagation → gradient-descent variants → hyper-parameter tuning.</p></section>
+{% if not r %}
+<div class="card warn">No results yet. Run <code>python run_pipeline.py</code> first.</div>
+{% else %}
+{% set t = r.final.test %}
+<div class="kpis">
+  <div class="card kpi"><span>Accuracy</span><b>{{ '%.2f'|format(t.accuracy*100) }}%</b></div>
+  <div class="card kpi"><span>Precision</span><b>{{ '%.2f'|format(t.precision*100) }}%</b></div>
+  <div class="card kpi"><span>Recall</span><b>{{ '%.2f'|format(t.recall*100) }}%</b></div>
+  <div class="card kpi"><span>F1-score</span><b>{{ '%.2f'|format(t.f1*100) }}%</b></div>
+  <div class="card kpi"><span>Parameters</span><b>{{ '{:,}'.format(r.final.params) }}</b></div>
+</div>
+{% macro fig(name, title, note='') %}
+<div class="card"><h4>{{ title }}</h4><img class="wide" src="{{ url_for('static', filename='model/' + name) }}" alt="{{ title }}">{% if note %}<p class="muted small">{{ note }}</p>{% endif %}</div>
+{% endmacro %}
+{{ fig('00_pipeline.png', 'Pipeline') }}
+<div class="grid2">
+  {{ fig('12_confusion_matrix_spam.png', 'Confusion matrix (test set)') }}
+  {{ fig('13_roc.png', 'ROC curve') }}
+</div>
+{{ fig('11_final_loss_curve.png', 'Training cost vs epochs (convergence)', 'Cost falls steadily and the gradient norm shrinks; early stopping keeps the epoch with the lowest validation cost.') }}
+{{ fig('14_model_ladder.png', 'Perceptron → MLP → tuned MLP') }}
+{{ fig('06_cost_bce_vs_mse.png', 'Cost functions: BCE vs MSE') }}
+{{ fig('07_gd_variants.png', 'Variants of gradient descent') }}
+{{ fig('08_gd_trajectories.png', 'How each update rule moves on a toy loss surface') }}
+{{ fig('09_hyperparameters.png', 'Hyper-parameter tuning') }}
+{{ fig('04_xor_perceptron_vs_mlp.png', 'Perceptron limitation (XOR)') }}
+{% endif %}
+{% endblock %}

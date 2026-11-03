@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% block title %}Analyzer{% endblock %}
+{% block body %}
+<section class="hero">
+  <h1>Is this review genuine or spam?</h1>
+  <p>Type or paste a product review (English or Hinglish). A neural network trained from scratch classifies it as
+     <b>Spam / Not Spam</b>, then reads sentiment and topics for genuine reviews.</p>
+</section>
+
+{% if not ready %}
+<div class="card warn">Model files not found. Run <code>python run_pipeline.py</code> once to train the models, then reload this page.</div>
+{% endif %}
+
+<div class="grid2">
+  <div class="card">
+    <h3>Input message</h3>
+    <textarea id="msg" rows="6" maxlength="2000" placeholder="e.g. Delivery was quick but the battery drains by evening..."></textarea>
+    <div class="row">
+      <button id="go" class="btn">Analyze review</button>
+      <span id="err" class="err"></span>
+    </div>
+    <div class="chips"><span class="muted">Try an example:</span>
+      {% for name, text in examples %}<button class="chip" data-text="{{ text }}">{{ name }}</button>{% endfor %}
+    </div>
+    <p class="flow">Input Message &nbsp;→&nbsp; AI Model (MLP) &nbsp;→&nbsp; Spam / Not Spam</p>
+  </div>
+
+  <div class="card" id="result">
+    <h3>Result</h3>
+    <div id="empty" class="muted">The prediction will appear here.</div>
+    <div id="out" hidden>
+      <div id="verdict" class="verdict"></div>
+      <div class="meter"><div id="bar"></div><span id="thr"></span></div>
+      <div class="muted small" id="pline"></div>
+      <div id="sentbox" hidden><h4>Sentiment</h4><div id="sent"></div></div>
+      <div id="topbox" hidden><h4>Topics mentioned</h4><div id="topics" class="chips"></div></div>
+      <div id="sigbox" hidden><h4>Spam signals</h4><ul id="signals"></ul></div>
+      <div id="wordbox" hidden><h4>Most influential words <span class="muted small">(removing the word changes P(spam) by…)</span></h4><div id="words" class="chips"></div></div>
+    </div>
+  </div>
+</div>
+
+{% if meta and meta.test %}
+<div class="card">
+  <h3>Model at a glance <span class="muted small">(held-out test set)</span></h3>
+  <div class="kpis small-kpis">
+    <div><b>{{ '%.1f'|format(meta.test.accuracy*100) }}%</b><span>Accuracy</span></div>
+    <div><b>{{ '%.1f'|format(meta.test.precision*100) }}%</b><span>Precision</span></div>
+    <div><b>{{ '%.1f'|format(meta.test.recall*100) }}%</b><span>Recall</span></div>
+    <div><b>{{ '%.1f'|format(meta.test.f1*100) }}%</b><span>F1-score</span></div>
+    <div><b>{{ meta.hidden|join(' × ') }}</b><span>hidden neurons · {{ meta.activation }}</span></div>
+  </div>
+</div>
+{% endif %}
+{% endblock %}
+{% block scripts %}
+<script>
+const $ = id => document.getElementById(id);
+document.querySelectorAll('.chip[data-text]').forEach(b => b.onclick = () => { $('msg').value = b.dataset.text; run(); });
+$('go').onclick = run;
+$('msg').addEventListener('keydown', e => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) run(); });
+function chipList(el, items, cls) { el.innerHTML = ''; items.forEach(t => { const s = document.createElement('span'); s.className = 'tag ' + (cls||''); s.textContent = t; el.appendChild(s); }); }
+async function run() {
+  const text = $('msg').value.trim(); $('err').textContent = '';
+  if (!text) { $('err').textContent = 'Please enter a review message.'; return; }
+  $('go').disabled = true; $('go').textContent = 'Analyzing…';
+  try {
+    const r = await fetch('/api/predict', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({text}) });
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.error || 'Request failed');
+    show(d);
+  } catch (e) { $('err').textContent = e.message; }
+  $('go').disabled = false; $('go').textContent = 'Analyze review';
+}
+function show(d) {
+  $('empty').hidden = true; $('out').hidden = false;
+  const v = $('verdict'); v.className = 'verdict ' + (d.is_spam ? 'bad' : 'good');
+  v.textContent = d.is_spam ? '🚫  SPAM / FAKE REVIEW' : '✅  NOT SPAM  (genuine review)';
+  $('bar').style.width = (d.spam_probability * 100).toFixed(1) + '%';
+  $('bar').className = d.is_spam ? 'bad' : 'good';
+  $('thr').style.left = (d.threshold * 100) + '%';
+  $('pline').textContent = `P(spam) = ${(d.spam_probability*100).toFixed(1)}%  ·  decision threshold ${d.threshold}  ·  confidence ${(d.confidence*100).toFixed(1)}%`;
+  $('sentbox').hidden = !d.sentiment;
+  if (d.sentiment) {
+    $('sent').innerHTML = `<div class="sentlabel ${d.sentiment.label}">${d.sentiment.label}</div>` + Object.entries(d.sentiment.probs).map(([k, p]) =>
+      `<div class="prow"><span>${k}</span><div><i class="${k}" style="width:${(p*100).toFixed(0)}%"></i></div><em>${(p*100).toFixed(0)}%</em></div>`).join('');
+  }
+  $('topbox').hidden = !d.topics.length; chipList($('topics'), d.topics, 'blue');
+  $('sigbox').hidden = !d.signals.length; $('signals').innerHTML = d.signals.map(s => `<li>${s}</li>`).join('');
+  $('wordbox').hidden = !d.influential_words.length;
+  chipList($('words'), d.influential_words.map(w => `${w.word}  ${w.effect > 0 ? '+' : ''}${(w.effect*100).toFixed(0)}%`), '');
+}
+</script>
+{% endblock %}

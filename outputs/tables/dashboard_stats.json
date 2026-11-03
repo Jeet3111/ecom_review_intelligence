@@ -1,0 +1,121 @@
+{
+  "kpi": {
+    "products": 120,
+    "categories": 6,
+    "reviews": 8000,
+    "spam_pct": 20.7,
+    "genuine": 6342,
+    "avg_rating": 3.47
+  },
+  "has_rating": true,
+  "has_date": true,
+  "sentiment": {
+    "Positive": 3544,
+    "Negative": 1817,
+    "Neutral": 981
+  },
+  "rating_dist": {
+    "5": 0.3348,
+    "4": 0.2241,
+    "3": 0.1547,
+    "2": 0.1476,
+    "1": 0.1389
+  },
+  "top_pos_topics": [
+    [
+      "Value for money",
+      1071
+    ],
+    [
+      "Product quality",
+      660
+    ],
+    [
+      "Performance & sound",
+      624
+    ],
+    [
+      "Customer service",
+      533
+    ],
+    [
+      "Packaging",
+      512
+    ],
+    [
+      "Delivery & logistics",
+      510
+    ]
+  ],
+  "top_neg_topics": [
+    [
+      "Value for money",
+      722
+    ],
+    [
+      "Performance & sound",
+      364
+    ],
+    [
+      "Product quality",
+      356
+    ],
+    [
+      "Skin, shade & texture",
+      288
+    ],
+    [
+      "Delivery & logistics",
+      260
+    ],
+    [
+      "Customer service",
+      254
+    ]
+  ],
+  "kw_pos": [
+    "satisfied",
+    "loved",
+    "purchase",
+    "must",
+    "rupee",
+    "highly",
+    "recommended",
+    "totally",
+    "happy",
+    "great",
+    "thank",
+    "every"
+  ],
+  "kw_neg": [
+    "money",
+    "buying",
+    "pathetic",
+    "avoid",
+    "waste",
+    "experience",
+    "want",
+    "back",
+    "disappointed",
+    "barbaad",
+    "poor",
+    "improve"
+  ],
+  "spam_by_category": {
+    "Mobiles & Accessories": 19.4,
+    "Grocery & Gourmet": 19.5,
+    "Fashion": 19.9,
+    "Home & Kitchen": 20.9,
+    "Electronics": 22.0,
+    "Beauty & Personal Care": 22.7
+  },
+  "spam_types": {
+    "subtle_fake": 466,
+    "promo_url": 246,
+    "generic_fake_praise": 221,
+    "hybrid": 206,
+    "paid_review": 198,
+    "offtopic": 130,
+    "gibberish": 114
+  }
+}

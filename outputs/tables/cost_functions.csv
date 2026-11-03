@@ -1,0 +1,7 @@
+setup,loss,optimizer,lr,final_train_cost,val_acc,val_f1,first_epoch_val_acc
+BCE + Adam,bce,adam,0.001,0.05195,0.9783,0.9458,0.9217
+MSE + Adam,mse,adam,0.001,0.01363,0.9758,0.94,0.9258
+BCE + GD,bce,gd,0.2,0.0847,0.9767,0.9414,0.8567
+MSE + GD,mse,gd,0.5,0.02065,0.9767,0.9421,0.8575
+BCE + GD (confidently-wrong start),bce,gd,0.5,0.07416,0.97,0.9253,0.92
+MSE + GD (confidently-wrong start),mse,gd,0.5,0.19835,0.7942,0.0159,0.7925
